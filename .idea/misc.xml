@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/B3/LoadToDbStaging/pom.xml" />
+        <option value="$PROJECT_DIR$/B6/DateDim/pom.xml" />
+        <option value="$PROJECT_DIR$/B4_5/StagingLoadWarehouseScript/pom.xml" />
+        <option value="$PROJECT_DIR$/B3.1 (Problem)/DataFilterLoader/pom.xml" />
+        <option value="$PROJECT_DIR$/B7_LoadToDbMart/pom.xml" />
+        <option value="$PROJECT_DIR$/StagingLoadWarehouseScript/pom.xml" />
+        <option value="$PROJECT_DIR$/DateDim/pom.xml" />
+      </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/B3.1 (Problem)/DataFilterLoader/pom.xml" />
+        <option value="$PROJECT_DIR$/B3/LoadToDbStaging/pom.xml" />
+        <option value="$PROJECT_DIR$/B4_5/StagingLoadWarehouseScript/pom.xml" />
+        <option value="$PROJECT_DIR$/B6/DateDim/pom.xml" />
+        <option value="$PROJECT_DIR$/B7_LoadToDbMart/pom.xml" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="homebrew-21" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>

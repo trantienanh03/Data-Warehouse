@@ -1,0 +1,24 @@
+﻿variable,value
+url,"""https://cellphones.com.vn/mobile.html"""
+csvPath,"""C:\\Users\\Administrator\\Downloads\\products_detailed.csv"""
+driverPath,"""C:\Users\Administrator\Downloads\Compressed\chromedriver-win64\chromedriver.exe"""
+webBrowserPath,"""C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"""
+crawToolPath,"""D:\CrawlProducts"""
+toolPath,"""CrawlProducts.java"""
+csv.file,src/main/java/org/example/fix_products.csv
+
+db.staging.url,jdbc:mysql://localhost:3306/db_staging?useUnicode=true&characterEncoding=UTF-8
+db.staging.user,root
+db.staging.pass,1234
+
+db.control.url,jdbc:mysql://localhost:3306/db_control?useUnicode=true&characterEncoding=UTF-8
+db.control.user,root
+db.control.pass,1234
+
+db.warehouse.url,jdbc:mysql://localhost:3306/db_warehouse?useUnicode=true&characterEncoding=UTF-8
+db.warehouse.user,root
+db.warehouse.pass,1234
+
+db.mart.url,jdbc:mysql://localhost:3306/db.mart?useUnicode=true&characterEncoding=UTF-8
+db.mart.user,root
+db.mart.pass,1234

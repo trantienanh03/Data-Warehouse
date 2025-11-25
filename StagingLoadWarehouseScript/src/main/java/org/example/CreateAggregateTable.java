@@ -16,7 +16,7 @@ public class CreateAggregateTable {
     public static void runTask() throws Exception {
         System.out.println("Bắt đầu Nhiệm vụ 5: Create Aggregate Table...");
 
-        // Định nghĩa các câu lệnh SQL
+        // Chuẩn bị các câu lệnh SQL
         String sqlCreateAggTable = "CREATE TABLE IF NOT EXISTS agg_brand_summary (" +
                 "brandID INT PRIMARY KEY, " +
                 "brandName VARCHAR(100), " +
@@ -27,6 +27,7 @@ public class CreateAggregateTable {
 
         String sqlTruncateAgg = "TRUNCATE TABLE agg_brand_summary";
 
+        // Tính toán các chỉ số tổng hợp (AVG, SUM, COUNT) từ bảng fact_phones
         String sqlInsertAgg = "INSERT INTO agg_brand_summary (brandID, brandName, averagePrice, " +
                 "totalReviews, averageRating, phoneCount) " +
                 "SELECT " +
@@ -46,13 +47,16 @@ public class CreateAggregateTable {
         ) {
             stmt.executeUpdate("SET FOREIGN_KEY_CHECKS=0");
 
-            // 5.1 CREATE TABLE IF NOT EXISTS (Tạo mới table agg_brand_summary)
+            // 5.1 CREATE TABLE IF NOT EXISTS
+            // Tạo bảng tổng hợp nếu chưa tồn tại
             stmt.executeUpdate(sqlCreateAggTable);
 
-            // 5.2 TRUNCATE agg_brand_summary (xoá dữ liệu cũ)
+            // 5.2 TRUNCATE agg_brand_summary
+            // Xóa dữ liệu tổng hợp cũ để tính toán lại mới nhất
             stmt.executeUpdate(sqlTruncateAgg);
 
-            // 5.3 INSERT AGGREGATED DATA (Select AVG(price), sum(numReviews)... FROM fact_phones JOIN dim_brand)
+            // 5.3 INSERT AGGREGATED DATA
+            // Thực thi câu lệnh tính toán và nạp vào bảng aggregate
             stmt.executeUpdate(sqlInsertAgg);
 
             stmt.executeUpdate("SET FOREIGN_KEY_CHECKS=1");

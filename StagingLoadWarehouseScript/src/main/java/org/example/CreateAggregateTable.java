@@ -1,28 +1,22 @@
 package org.example;
 
-import java.io.Reader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 
 public class CreateAggregateTable {
 
-    // Xóa toàn bộ phần loadConfig() và các biến tĩnh cũ
-
     private static Connection getConnection() throws Exception {
-        // Lấy cấu hình DB WAREHOUSE từ ConfigReader
         final String DB_URL = ReaderVariable.getValue("db.warehouse.url");
         final String DB_USER = ReaderVariable.getValue("db.warehouse.user");
         final String DB_PASS = ReaderVariable.getValue("db.warehouse.pass");
-
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
     }
-    // ===================================
 
     public static void runTask() throws Exception {
         System.out.println("Bắt đầu Nhiệm vụ 5: Create Aggregate Table...");
 
-        // SQL (Giữ nguyên)
+        // Định nghĩa các câu lệnh SQL
         String sqlCreateAggTable = "CREATE TABLE IF NOT EXISTS agg_brand_summary (" +
                 "brandID INT PRIMARY KEY, " +
                 "brandName VARCHAR(100), " +
@@ -30,7 +24,9 @@ public class CreateAggregateTable {
                 "totalReviews INT, " +
                 "averageRating FLOAT, " +
                 "phoneCount INT)";
+
         String sqlTruncateAgg = "TRUNCATE TABLE agg_brand_summary";
+
         String sqlInsertAgg = "INSERT INTO agg_brand_summary (brandID, brandName, averagePrice, " +
                 "totalReviews, averageRating, phoneCount) " +
                 "SELECT " +
@@ -45,20 +41,20 @@ public class CreateAggregateTable {
                 "GROUP BY b.brandID, b.brandName";
 
         try (
-                Connection conn = getConnection(); // Kết nối tới DB Warehouse
+                Connection conn = getConnection();
                 Statement stmt = conn.createStatement()
         ) {
-            // Tắt khóa ngoại (để TRUNCATE)
             stmt.executeUpdate("SET FOREIGN_KEY_CHECKS=0");
 
-            // 1. Đảm bảo bảng tồn tại
+            // 5.1 CREATE TABLE IF NOT EXISTS (Tạo mới table agg_brand_summary)
             stmt.executeUpdate(sqlCreateAggTable);
-            // 2. Dọn dẹp bảng
+
+            // 5.2 TRUNCATE agg_brand_summary (xoá dữ liệu cũ)
             stmt.executeUpdate(sqlTruncateAgg);
-            // 3. Tải dữ liệu tổng hợp
+
+            // 5.3 INSERT AGGREGATED DATA (Select AVG(price), sum(numReviews)... FROM fact_phones JOIN dim_brand)
             stmt.executeUpdate(sqlInsertAgg);
 
-            // Bật lại khóa ngoại
             stmt.executeUpdate("SET FOREIGN_KEY_CHECKS=1");
 
             System.out.println("-> Create Aggregate THÀNH CÔNG.");

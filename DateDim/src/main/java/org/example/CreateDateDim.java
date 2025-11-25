@@ -4,36 +4,28 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-
 import org.joda.time.LocalDate;
 
 public class CreateDateDim {
 
-    // Xóa các biến cấu hình cũ và phương thức loadConfig()
-
     private static Connection getWarehouseConnection() throws Exception {
-        // 🚨 Lấy cấu hình DB WAREHOUSE từ ConfigReader đã được Main.java nạp
         final String DB_URL = ReaderVariable.getValue("db.warehouse.url");
         final String DB_USER = ReaderVariable.getValue("db.warehouse.user");
         final String DB_PASS = ReaderVariable.getValue("db.warehouse.pass");
-
-        // Trả về kết nối
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASS);
     }
-    // ===================================
 
-
-    // Đổi tên từ main() sang runTask() và ném lỗi ra ngoài
     public static void runTask() throws Exception {
         System.out.println("Bắt đầu Nhiệm vụ 6: Create Date Dimension...");
 
+        // 6.3 Kết nối với db_warehouse
         try (
-                // Kết nối vào db_warehouse
                 Connection conn = getWarehouseConnection();
                 Statement stmt = conn.createStatement()
         ) {
 
-            // 1. Tạo cấu trúc bảng dim_date
+            // 6.4 CREATE TABLE IF NOT EXISTS
+            // Tạo bảng dim_date với các cột thời gian chi tiết (ngày, tháng, quý, năm)
             String sqlCreateTable = "CREATE TABLE IF NOT EXISTS dim_date (" +
                     "  date_key INT PRIMARY KEY," +
                     "  full_date DATE," +
@@ -47,50 +39,52 @@ public class CreateDateDim {
                     ")";
             stmt.executeUpdate(sqlCreateTable);
 
-            // 2. Xóa dữ liệu cũ
+            // 6.5 TRUNCATE dim_date
+            // Làm sạch dữ liệu cũ
             stmt.executeUpdate("TRUNCATE TABLE dim_date");
 
-            // 3. Chuẩn bị câu lệnh INSERT
             String sqlInsert = "INSERT INTO dim_date (date_key, full_date, day_of_week, day_of_month, " +
                     "day_of_year, month_name, month_of_year, quarter_of_year, year) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             PreparedStatement pstmt = conn.prepareStatement(sqlInsert);
 
-            // Logic chính: Tạo lịch vạn niên từ 2015 đến 2025
+            // 6.6 Generate Calendar Data
+            // Sử dụng thư viện Joda-Time để tạo vòng lặp từng ngày từ 2015 đến 2025
             LocalDate startDate = new LocalDate(2015, 1, 1);
             LocalDate endDate = new LocalDate(2025, 12, 31);
-
             System.out.println("-> Đang tạo dữ liệu lịch từ " + startDate + " đến " + endDate);
 
             int count = 0;
             for (LocalDate date = startDate; date.isBefore(endDate.plusDays(1)); date = date.plusDays(1)) {
 
+                // 6.7 Extract Data Attributes
+                // Trích xuất các thuộc tính ngày tháng năm cho từng dòng dữ liệu
                 String dayOfWeek = date.dayOfWeek().getAsText();
                 String monthName = date.monthOfYear().getAsText();
                 int quarter = (date.getMonthOfYear() - 1) / 3 + 1;
                 String quarterName = "Q" + quarter;
 
-                // Gán giá trị vào câu lệnh INSERT
-                pstmt.setInt(1, Integer.parseInt(date.toString("yyyyMMdd"))); // date_key (vd: 20251105)
+                pstmt.setInt(1, Integer.parseInt(date.toString("yyyyMMdd"))); // date_key
                 pstmt.setDate(2, new java.sql.Date(date.toDate().getTime())); // full_date
-                pstmt.setString(3, dayOfWeek); // day_of_week
-                pstmt.setInt(4, date.getDayOfMonth()); // day_of_month
-                pstmt.setInt(5, date.getDayOfYear()); // day_of_year
-                pstmt.setString(6, monthName); // month_name
-                pstmt.setInt(7, date.getMonthOfYear()); // month_of_year
-                pstmt.setString(8, quarterName); // quarter_of_year
-                pstmt.setInt(9, date.getYear()); // year
+                pstmt.setString(3, dayOfWeek);
+                pstmt.setInt(4, date.getDayOfMonth());
+                pstmt.setInt(5, date.getDayOfYear());
+                pstmt.setString(6, monthName);
+                pstmt.setInt(7, date.getMonthOfYear());
+                pstmt.setString(8, quarterName);
+                pstmt.setInt(9, date.getYear());
 
-                pstmt.addBatch(); // Thêm vào lô
+                // Thêm vào batch để xử lý hàng loạt thay vì insert từng dòng (tối ưu hiệu năng)
+                pstmt.addBatch();
                 count++;
             }
 
-            // 4. Thực thi
+            // 6.8 Batch Insert
+            // Thực thi insert toàn bộ dữ liệu lịch đã tạo vào Database
             pstmt.executeBatch();
 
             System.out.println("-> Create Date Dimension THÀNH CÔNG. Đã chèn " + count + " ngày vào db_warehouse.");
         }
-        // Lỗi sẽ được ném (throw) ra ngoài để Main.java xử lý
     }
 }

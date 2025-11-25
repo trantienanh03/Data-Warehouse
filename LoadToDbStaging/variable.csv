@@ -1,0 +1,11 @@
+﻿variable,value
+url,"""https://cellphones.com.vn/mobile.html"""
+csvPath,"""C:\\Users\\Administrator\\Downloads\\products_detailed.csv"""
+driverPath,"""C:\Users\Administrator\Downloads\Compressed\chromedriver-win64\chromedriver.exe"""
+webBrowserPath,"""C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe"""
+crawToolPath,"""D:\CrawlProducts"""
+toolPath,"""CrawlProducts.java"""
+db.url,jdbc:mysql://localhost:3306/db_staging?useUnicode=true&characterEncoding=UTF-8
+db.user,root
+db.pass,
+csv.file,src/main/java/org/example/fix_products.csv

@@ -29,30 +29,34 @@ public class TransformScript {
         // 1. Tải cấu hình từ file CSV (sẽ mở cửa sổ chọn file)
         CsvConfigLoader.loadConfigFromCsv();
 
-        // 2. Sử dụng cấu hình đã load để kết nối đến DB Staging (Database Warehouse)
-        // Lưu ý: Trong kiến trúc ETL/ELT, Transform Script thường đọc từ Staging/Warehouse,
-        // Cấu hình CsvConfigLoader dùng "db.warehouse." cho DB nguồn.
-        String url  = CsvConfigLoader.SRC_URL; // db.warehouse.url
-        String user = CsvConfigLoader.SRC_USER; // db.warehouse.user
-        String pass = CsvConfigLoader.SRC_PASS; // db.warehouse.pass
 
+        String url  = CsvConfigLoader.SRC_URL;
+        String user = CsvConfigLoader.SRC_USER;
+        String pass = CsvConfigLoader.SRC_PASS;
+// BƯỚC 3.1: Kết nối cơ sở dữ liệu (db_staging)
         try (Connection conn = DriverManager.getConnection(url, user, pass)) {
             conn.setAutoCommit(false);
 
-            // 1) Đọc toàn bộ dữ liệu nguồn (từ stg_phones trong DB Warehouse)
+            // BƯỚC 3.2: Đọc toàn bộ dữ liệu từ bảng nguồn (stg_phones)
             List<Map<String,Object>> rows = readAll(conn);
 
-            // 2) Làm sạch tối thiểu: CHỈ loại thiếu REQUIRED. KHÔNG dedup. KHÔNG completeness.
+            // BƯỚC 3.3: Lọc tối thiểu (cleanMinimal)
             List<Map<String,Object>> cleaned = cleanMinimal(rows);
 
-            // 3) Ghi đè lại vào chính stg_phones (sao lưu trước khi ghi)
+            // BƯỚC 3.4 & 3.5: Sao lưu và Ghi đè dữ liệu đã làm sạch
             backupAndReplace(conn, cleaned);
 
             conn.commit();
             System.out.println("Done. Input: " + rows.size() + " rows; Output: " + cleaned.size() + " rows.");
         }
+        // BƯỚC 3.1.1: Thông báo lỗi (Thất bại)
+        // Nếu DriverManager.getConnection() (3.1) thất bại (sai URL/User/Pass/DB down),
+        // nó sẽ ném ra một SQLException.
+        // Do hàm main khai báo 'throws Exception', ngoại lệ này sẽ làm chương trình
+        // DỪNG LẠI ngay lập tức và in chi tiết lỗi (stack trace) ra console,
+        // tương ứng với hành động "Dừng tiến trình, in thông báo lỗi" của 3.1.1.
     }
-
+    // 3.2 Logic đọc toàn bộ dữ liệu từ stg_phones
     private static List<Map<String,Object>> readAll(Connection conn) throws SQLException {
         String sql = "SELECT * FROM stg_phones";
         try (PreparedStatement ps = conn.prepareStatement(sql);
@@ -74,11 +78,7 @@ public class TransformScript {
         }
     }
 
-    /**
-     * Lọc tối thiểu:
-     * - Chỉ loại bản ghi thiếu một trong các cột REQUIRED (name, price, link).
-     * - Giữ nguyên thứ tự, KHÔNG khử trùng/dedup, KHÔNG xét completeness.
-     */
+    // 3.3 Logic Lọc tối thiểu (cleanMinimal)
     private static List<Map<String,Object>> cleanMinimal(List<Map<String,Object>> rows) {
         List<Map<String,Object>> out = new ArrayList<>(rows.size());
         for (Map<String,Object> r : rows) {
@@ -118,9 +118,8 @@ public class TransformScript {
         }
         return (double) filled / COLS.length;
     }
-
+    // BƯỚC 3.4: Sao lưu bảng stg_phones vào stg_phones_backup và TRUNCATE stg_phones
     private static void backupAndReplace(Connection conn, List<Map<String,Object>> rows) throws SQLException {
-        // Sao lưu nhanh bảng cũ
         try (Statement st = conn.createStatement()) {
             st.execute("CREATE TABLE IF NOT EXISTS stg_phones_backup LIKE stg_phones");
             st.execute("TRUNCATE TABLE stg_phones_backup");
@@ -128,8 +127,7 @@ public class TransformScript {
             // Xóa sạch bảng đích
             st.execute("TRUNCATE TABLE stg_phones");
         }
-
-        // Ghi lại dữ liệu đã làm sạch
+// BƯỚC 3.5: Ghi đè dữ liệu đã làm sạch vào bảng stg_phones
         String insert = """
             INSERT INTO stg_phones
             (name, screenSize, screenTechnology, screenResolution, camera, chipset, ram, storage, battery, version, color, price, oldPrice, link, rating, numReviews, nfc, releaseDate)

@@ -55,7 +55,7 @@ public class LoadToDataMartSeparateDB {
         );
     }
 
-    // Tạo database đích nếu thiếu (MySQL/MariaDB)
+    // (7.2 Kiểm tra DB Mart? & 7.3 Tạo Database mới)
     private static void ensureMartDB() {
         try {
             // Lấy URL từ CsvConfigLoader
@@ -79,10 +79,10 @@ public class LoadToDataMartSeparateDB {
 
     public static void main(String[] args) {
         System.out.println("=== Load Data Mart: db_warehouse → db_mart ===");
-
-        // 1. Load config VÀ hiển thị pop-up chọn file
+// BƯỚC 7.1 & 7.2 & 7.3: Đọc Config, Kết nối & Đảm bảo DB Mart tồn tại
         try {
             loadConfig();
+            // 7.2 Kiểm tra DB Mart? & 7.3 Tạo Database mới (Logic nằm trong ensureMartDB)
             ensureMartDB();
         } catch (Exception e) {
             // Xử lý exception từ invokeAndWait hoặc CsvConfigLoader
@@ -95,18 +95,19 @@ public class LoadToDataMartSeparateDB {
             return;
         }
 
-        // 2) Tạo schema + full refresh theo kiểu drop-then-create để tránh lệch schema
+        // BƯỚC 7.4 & 7.5: Tạo schema + full refresh
+        // Logic thực hiện 7.4 (Drop bảng cũ) và 7.5 (Create bảng mới & Index) nằm trong hàm này
         if (!recreateMartSchema()) return;
 
-        // 3) Nạp dm_brand_performance
+        // BƯỚC 7.6 & 7.7: Nạp dm_brand_performance
         int rowsBrand = loadBrandPerformance();
         if (rowsBrand < 0) return;
 
-        // 4) Nạp dim_date
+        // BƯỚC 7.8 & 7.9: Nạp dim_date
         int rowsDate = loadDimDate();
         if (rowsDate < 0) return;
 
-        // 5) Tạo view
+        // BƯỚC 7.10: Tạo view
         createViewSafe();
 
         System.out.println("→ OK. Chèn " + rowsBrand + " dòng vào db_mart.dm_brand_performance.");
@@ -116,6 +117,7 @@ public class LoadToDataMartSeparateDB {
 
     /* ===================== SCHEMA & VIEW ===================== */
     private static boolean recreateMartSchema() {
+        // BƯỚC 7.4: Drop bảng cũ: dm_brand_performance, dim_date
         try (Connection mart = martConn(); Statement st = mart.createStatement()) {
             mart.setAutoCommit(false);
 
@@ -125,7 +127,7 @@ public class LoadToDataMartSeparateDB {
             st.executeUpdate("DROP TABLE IF EXISTS dim_date");
             st.execute("SET FOREIGN_KEY_CHECKS=1");
 
-            // Tạo lại bảng với schema đúng
+            // BƯỚC 7.5: Create bảng mới & Index
             st.executeUpdate(
                     "CREATE TABLE dm_brand_performance (" +
                             "  brandName     VARCHAR(100) PRIMARY KEY," +
@@ -164,7 +166,7 @@ public class LoadToDataMartSeparateDB {
     private static void safeCreateIndex(Statement st, String sql) {
         try { st.executeUpdate(sql); } catch (Exception ignore) {}
     }
-
+    // BƯỚC 7.10: Tạo View: vw_brand
     private static void createViewSafe() {
         try (Connection mart = martConn(); Statement st = mart.createStatement()) {
             try { st.executeUpdate("DROP VIEW IF EXISTS vw_brand"); } catch (Exception ignore) {}
@@ -196,11 +198,11 @@ public class LoadToDataMartSeparateDB {
             try { s.setFetchSize(Integer.MIN_VALUE); } catch (Exception ignore) {}
             try { src.setAutoCommit(false); } catch (Exception ignore) {}
             mart.setAutoCommit(false);
-
+// BƯỚC 7.6: Đọc agg_brand_summary từ Warehouse
             ResultSet rs = s.executeQuery(selAgg);
             final int BATCH = 1000;
             int pending = 0;
-
+// BƯỚC 7.7: Ghi vào dm_brand_performance tại Data Mart
             while (rs.next()) {
                 // brandName
                 ps.setString(1, rs.getString("brandName"));
@@ -263,11 +265,11 @@ public class LoadToDataMartSeparateDB {
             try { s.setFetchSize(Integer.MIN_VALUE); } catch (Exception ignore) {}
             try { src.setAutoCommit(false); } catch (Exception ignore) {}
             mart.setAutoCommit(false);
-
+// BƯỚC 7.8: Đọc dim_date từ Warehouse
             ResultSet rs = s.executeQuery(selDate);
             final int BATCH = 1000;
             int pending = 0;
-
+// BƯỚC 7.9: Ghi vào dim_date tại Data Mart
             while (rs.next()) {
                 ps.setInt(1, rs.getInt("date_key"));
 

@@ -13,6 +13,8 @@
     <file url="file://$PROJECT_DIR$/B7_LoadToDbMart/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/DateDim/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/DateDim/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ExtractScript_FillData/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ExtractScript_FillData/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/StagingLoadWarehouseScript/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/StagingLoadWarehouseScript/src/main/resources" charset="UTF-8" />
   </component>

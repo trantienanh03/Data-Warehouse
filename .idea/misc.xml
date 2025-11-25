@@ -11,6 +11,7 @@
         <option value="$PROJECT_DIR$/B7_LoadToDbMart/pom.xml" />
         <option value="$PROJECT_DIR$/StagingLoadWarehouseScript/pom.xml" />
         <option value="$PROJECT_DIR$/DateDim/pom.xml" />
+        <option value="$PROJECT_DIR$/ExtractScript_FillData/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

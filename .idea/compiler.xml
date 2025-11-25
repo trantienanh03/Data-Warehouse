@@ -6,8 +6,10 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="DateDim" />
+        <module name="ExtractScript_FillData (1)" />
+        <module name="ExtractScript_FillData" />
         <module name="StagingLoadWarehouse" />
+        <module name="DateDim" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

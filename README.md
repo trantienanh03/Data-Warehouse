@@ -40,4 +40,3 @@ Hệ thống tập trung vào xử lý quy trình ETL cốt lõi:
 *   **Công cụ quản lý:** GitHub để quản lý mã nguồn.
 
 ---
-**Tác giả:** [trantienanh03](https://github.com/trantienanh03)

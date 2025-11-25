@@ -8,16 +8,17 @@
         <outputRelativeToContentRoot value="true" />
         <module name="DateDim" />
         <module name="LoadToDbStaging" />
-        <module name="ExtractScript_FillData (1)" />
-        <module name="CrawlProducts (1)" />
+        <module name="TransformScript" />
         <module name="DataFilterLoader" />
         <module name="ExtractScript_FillData" />
         <module name="StagingLoadWarehouse" />
-        <module name="CrawlProducts" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="LoadToDBMart" target="22" />
+      <module name="CrawlProduct" target="21" />
+      <module name="CrawlProducts" target="21" />
+      <module name="CrawlProducts (1)" target="21" />
+      <module name="CrawlProducts (2)" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>

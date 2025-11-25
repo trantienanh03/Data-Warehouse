@@ -11,9 +11,12 @@
         <option value="$PROJECT_DIR$/B7_LoadToDbMart/pom.xml" />
         <option value="$PROJECT_DIR$/StagingLoadWarehouseScript/pom.xml" />
         <option value="$PROJECT_DIR$/DateDim/pom.xml" />
-        <option value="$PROJECT_DIR$/ExtractScript_FillData/pom.xml" />
         <option value="$PROJECT_DIR$/LoadToDataMart/pom.xml" />
         <option value="$PROJECT_DIR$/LoadToDbStaging/pom.xml" />
+        <option value="$PROJECT_DIR$/TransformScript/pom.xml" />
+        <option value="$PROJECT_DIR$/CrawlProduct/pom.xml" />
+        <option value="$PROJECT_DIR$/ExtractScript_FillData/pom.xml" />
+        <option value="$PROJECT_DIR$/CrawlProducts/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
@@ -23,7 +26,6 @@
         <option value="$PROJECT_DIR$/B4_5/StagingLoadWarehouseScript/pom.xml" />
         <option value="$PROJECT_DIR$/B6/DateDim/pom.xml" />
         <option value="$PROJECT_DIR$/B7_LoadToDbMart/pom.xml" />
-        <option value="$PROJECT_DIR$/ExtractScript_FillData/pom.xml" />
       </set>
     </option>
   </component>

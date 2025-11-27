@@ -25,31 +25,60 @@ public class LoadCSVToStaging {
 
 
         String sql = """
-            INSERT INTO stg_phones (
-                name, screenSize, screenTechnology, screenResolution, camera,
-                chipset, ram, storage, battery, version, color, price, oldPrice,
-                link, rating, numReviews, nfc, releaseDate
-            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-        """;
+                    INSERT INTO stg_phones (
+                        name, screenSize, screenTechnology, screenResolution, camera,
+                        chipset, ram, storage, battery, version, color, price, oldPrice,
+                        link, rating, numReviews, nfc, releaseDate
+                    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                """;
 
         try (
-             //   3.5 Gọi DriverManager.getConnection() để bắt đầu kết nối đến database
+                //   3.5 Gọi DriverManager.getConnection() để bắt đầu kết nối đến database
                 Connection conn = DriverManager.getConnection(URL, USER, PASS);
                 //3.5.1 Khởi tạo PreparedStatement (SQL INSERT)
                 PreparedStatement ps = conn.prepareStatement(sql);
                 CSVReader reader = new CSVReader(new FileReader(CSV_FILE))
         ) {
+            // 🟢 TẠO BẢNG NẾU CHƯA TỒN TẠI — KHÔNG XOÁ COMMENT CŨ
+            try (Statement stmt = conn.createStatement()) {
+                stmt.executeUpdate("""
+                            CREATE TABLE IF NOT EXISTS stg_phones (
+                                id INT AUTO_INCREMENT PRIMARY KEY,
+                                name VARCHAR(255),
+                                screenSize VARCHAR(50),
+                                screenTechnology VARCHAR(100),
+                                screenResolution VARCHAR(100),
+                                camera VARCHAR(255),
+                                chipset VARCHAR(100),
+                                ram VARCHAR(50),
+                                storage VARCHAR(50),
+                                battery INT,
+                                version VARCHAR(50),
+                                color VARCHAR(50), 
+                                price DECIMAL(15,2),
+                                oldPrice DECIMAL(15,2),
+                                link VARCHAR(500),
+                                rating FLOAT,
+                                numReviews INT,
+                                nfc VARCHAR(10),
+                                releaseDate VARCHAR(50)
+                            )
+                        """);
+            }
             String[] row;
             boolean skipHeader = true;
             int successCount = 0;
             int errorCount = 0;
 
             while ((row = reader.readNext()) != null) {
-                if (skipHeader) { skipHeader = false; continue; } // bỏ dòng header
+                if (skipHeader) {
+                    skipHeader = false;
+                    continue;
+                } // bỏ dòng header
 
                 try {
                     System.out.println("Loading: " + Arrays.toString(row));
-                // 3.6 Thực hiện: Cắt chuỗi (Truncate): Kiểm tra độ dài name, link, specs... (nếu quá dài thì cắt)
+                    // 3.6 Thực hiện: Cắt chuỗi (Truncate): Kiểm tra độ dài name, link, specs... (nếu quá dài thì cắt)
                     ps.setString(1, truncate(row[0], 255));   // name
                     ps.setString(2, truncate(row[1], 50));    // screenSize
                     ps.setString(3, truncate(row[2], 100));   // screenTechnology
@@ -97,7 +126,7 @@ public class LoadCSVToStaging {
                     System.err.println("Chi tiết: " + rowError.getMessage());
                 }
             }
-             // 3.8 In ra màn hình số dòng lỗi, thành công
+            // 3.8 In ra màn hình số dòng lỗi, thành công
             System.out.println("\nDONE: Load thành công " + successCount + " dòng");
             if (errorCount > 0) {
                 System.out.println("Có " + errorCount + " dòng lỗi bị bỏ qua");
@@ -150,10 +179,12 @@ public class LoadCSVToStaging {
             System.exit(1);
         }
     }
+
     private static String chooseVariableCsv() {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Chọn file variable.csv");
